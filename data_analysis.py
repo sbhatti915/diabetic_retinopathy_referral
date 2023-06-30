@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+@author: Sameer Bhatti
 
-This is a temporary script file.
+This file performs analysis over the diabetic retinopathy dataset to view the fundus photos and show the imbalance in the dataset
 """
 
 import pandas as pd
