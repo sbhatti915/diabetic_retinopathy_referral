@@ -3,7 +3,10 @@
 """
 @author: sameer
 
-
+Dataset class for the Diabetic Retinopathy Referral. This takes in a dataframe
+to obtain image file names and severity scores. This loads the image,
+preprocesses it, and converts the corresponding severity score to a 0
+(don't refer) or a 1 (refer).
 """
 
 from torch.utils.data import Dataset
@@ -25,6 +28,7 @@ class DRR(Dataset):
         # this should return one sample from the dataset
         img_file_name = self.df['image'][idx]
         level = self.df['level'][idx]
+        # print(img_file_name)
         
         if (level >= 2):
             target = 1
@@ -39,5 +43,3 @@ class DRR(Dataset):
             
         return img, target
         
-            
-            
