@@ -6,7 +6,6 @@ This file performs analysis over the diabetic retinopathy dataset to view the fu
 """
 
 import pandas as pd
-import numpy as np
 from matplotlib import pyplot as plt
 import random
 import os
@@ -40,7 +39,7 @@ def view_images(dataframe, images_path, num_levels):
         image = PIL.Image.open(path_to_image)
         plt.title(f"Severity = {str(k)}")
         plt.imshow(image)
-        
+
 if __name__ == '__main__':
     df = load_csv(path_to_csv)
     counts = view_counts(df)
