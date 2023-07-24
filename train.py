@@ -24,6 +24,7 @@ batch_size = 64
 num_epochs = 25
 learning_rate=0.00001
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+num_samples = 2000 # Number of samples taken each for no refer and refer
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -33,9 +34,9 @@ transform = transforms.Compose([
 
 df = pd.read_csv(csv_path)
 filtered_df = df[df['level'] >= 2]
-sampled_df_refer = filtered_df.sample(n=2000, random_state=42)
+sampled_df_refer = filtered_df.sample(n=num_samples, random_state=42)
 filtered_df = df[df['level'] < 2]
-sampled_df_no_refer = filtered_df.sample(n=2000, random_state=42)
+sampled_df_no_refer = filtered_df.sample(n=num_samples, random_state=42)
 combined_df = pd.concat([sampled_df_no_refer, sampled_df_refer], ignore_index=True)
 combined_df = combined_df.sample(frac = 1)
 
