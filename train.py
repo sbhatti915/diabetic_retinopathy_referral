@@ -13,16 +13,17 @@ from torch.utils.data import DataLoader, random_split
 import torchvision.models as models
 import torchvision.transforms as transforms
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, average_precision_score
 from dataset import DRR
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 root_path = '/home/sameer/biods220/assign1/diabetic_retinopathy_referral/diabetic_retinopathy/train'
 csv_path = '/home/sameer/biods220/assign1/diabetic_retinopathy_referral/diabetic_retinopathy/trainLabels.csv'
 batch_size = 64
-num_epochs = 25
-learning_rate=0.00001
+num_epochs = 50
+learning_rate=0.001
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 num_samples = 2000 # Number of samples taken each for no refer and refer
 
@@ -64,7 +65,7 @@ model = models.resnet50(weights='ResNet50_Weights.DEFAULT')
 
 # Freeze last and second to last layers
 for name, param in model.named_parameters():
-    if 'layer4' or 'fc' in name:
+    if 'fc' in name:
         param.requires_grad = True
     else:
         param.requires_grad = False
@@ -80,10 +81,10 @@ model.to(device)
 criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-best_f1_val = 0
+best_roc_val = 0
 
 print("Beginning Training")
-for epoch in range(num_epochs):
+for epoch in tqdm(range(num_epochs)):
     model.train()
     total_loss = 0.0
     predictions = []
@@ -107,8 +108,8 @@ for epoch in range(num_epochs):
         total_loss += loss.item()
 
     avg_loss = total_loss / len(train_loader)
-    f1_train = f1_score(ground_truth, predictions)
-    print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_loss:.4f}, f1 score: {f1_train}")
+    roc_train = roc_auc_score(ground_truth, predictions)
+    print(f"Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_loss:.4f}, ROC: {roc_train}")
 
     # Validation
     model.eval()
@@ -130,13 +131,14 @@ for epoch in range(num_epochs):
             total_val_loss += val_loss.item()
 
     avg_val_loss = total_val_loss / len(val_loader)
-    f1_val = f1_score(ground_truth, predictions)
-    print(f"Epoch {epoch + 1}/{num_epochs}, Validation Loss: {avg_val_loss:.4f}, f1 score: {f1_val}")
+    # f1_val = f1_score(ground_truth, predictions)
+    roc_val = roc_auc_score(ground_truth, predictions)
+    print(f"Epoch {epoch + 1}/{num_epochs}, Validation Loss: {avg_val_loss:.4f}, ROC: {roc_val}")
     
-    if f1_val > best_f1_val:
-        best_f1_val = f1_val
+    if roc_val > best_roc_val:
+        best_roc_val = roc_val
         torch.save(model.state_dict(), '/home/sameer/biods220/assign1/diabetic_retinopathy_referral/model.pt')
-        print('Model saved')
+        print('\n Model saved')
     print("Finished Epoch")
 
 print("Training complete. Starting Evaluation. Loading trained model")
@@ -168,5 +170,7 @@ accuracy = accuracy_score(ground_truth, predictions)
 precision = precision_score(ground_truth, predictions)
 recall = recall_score(ground_truth, predictions)
 f1 = f1_score(ground_truth, predictions)
+roc = roc_auc_score(ground_truth, predictions)
+auprc = average_precision_score(ground_truth, predictions)
 
-print(f"Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}")
+print(f"Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1:.4f}, ROC: {roc:.4f}, AUPRC: {auprc:.4f}")
