@@ -64,3 +64,4 @@ A Resnet-50 model, pre-trained on ImageNet, was used for classification. Various
 |   4|  0.6937|  0.6921| 0.6580|   0.6925|
 |   5|  0.7025|  0.6898| 0.6789|   0.7014|
 
+Experiment 4 is available to download in the train_4 directory
